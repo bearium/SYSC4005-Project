@@ -45,6 +45,10 @@ func (i *Inspector) ReadData() {
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
 			fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
+			placeWorkBench := i.canPlace(currentComponent)
+			if placeWorkBench != nil {
+				fmt.Println(placeWorkBench.Name)
+			}
 		} else {
 			i.Components = append(i.Components[:randInt], i.Components[randInt+1:]...)
 			if len(i.Components) == 0 {
@@ -52,4 +56,19 @@ func (i *Inspector) ReadData() {
 			}
 		}
 	}
+}
+
+func (i *Inspector) canPlace(currentComponent *component.Component) *workbench.Workbench {
+	var currentBench *workbench.Workbench
+	var currentMaxBenchComponents int
+	for _, bench := range i.Workbenches {
+		componentAmount := len(bench.ComponentArray[currentComponent.Name])
+		if bench.ComponentArray[currentComponent.Name] != nil && componentAmount < 2 {
+			if componentAmount < currentMaxBenchComponents || currentMaxBenchComponents == 0 {
+				currentBench = bench
+				currentMaxBenchComponents = componentAmount
+			}
+		}
+	}
+	return currentBench
 }
