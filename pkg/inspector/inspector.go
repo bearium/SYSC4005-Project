@@ -20,6 +20,7 @@ type Inspector struct {
 	Components  []*component.Component
 	Workbenches []*workbench.Workbench
 	Mux         *sync.Mutex
+	IdleTime    time.Duration
 }
 
 func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
@@ -48,18 +49,29 @@ func (i *Inspector) ReadData() {
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
 			fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
+			var start time.Time
 			for {
 				placeWorkBench := i.canPlace(currentComponent)
 				if placeWorkBench != nil {
+					if !start.IsZero() {
+						t := time.Now()
+						elapsed := t.Sub(start)
+						i.IdleTime = i.IdleTime + elapsed
+					}
 					i.Mux.Lock()
 					placeWorkBench.AddMaterials(currentComponent)
 					i.Mux.Unlock()
 					break
 				}
+				if start.IsZero() {
+					start = time.Now()
+				}
 			}
 		} else {
 			i.Components = append(i.Components[:randInt], i.Components[randInt+1:]...)
 			if len(i.Components) == 0 {
+				totalIdleTime := i.IdleTime
+				fmt.Printf("total idle time for %s: %v\n", i.Name, totalIdleTime)
 				return
 			}
 		}
