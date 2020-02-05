@@ -27,7 +27,6 @@ func NewInspector(name string, components []*component.Component) *Inspector {
 
 func (i *Inspector) ReadData() {
 	rand.Seed(seed)
-	var scanners []*bufio.Scanner
 	for j := 0; j < len(i.Components); j++ {
 		i.Components[j].AddScanner(bufio.NewScanner(i.Components[j].File))
 	}
@@ -39,14 +38,13 @@ func (i *Inspector) ReadData() {
 		}
 		currentComponent := i.Components[randInt]
 		if currentComponent.Scanner.Scan() {
-
 			scanText := strings.Trim(currentComponent.Scanner.Text(), " ")
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
 			fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
 		} else {
 			i.Components = append(i.Components[:randInt], i.Components[randInt+1:]...)
-			if len(scanners) == 0 {
+			if len(i.Components) == 0 {
 				return
 			}
 			continue
