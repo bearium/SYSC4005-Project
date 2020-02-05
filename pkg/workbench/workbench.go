@@ -9,6 +9,8 @@ import (
 	"github.com/SYSC4005-Project/pkg/product"
 )
 
+const seed = 42
+
 type Workbench struct {
 	Name           string
 	Product        *product.Product
@@ -68,4 +70,8 @@ func (bench *Workbench) MakeProduct() {
 
 func (bench *Workbench) addScanner(scanner *bufio.Scanner) {
 	bench.Scanner = scanner
+}
+
+func (bench *Workbench) ReadData() {
+
 }
