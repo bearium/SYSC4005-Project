@@ -77,10 +77,14 @@ func (bench *Workbench) AddScanner(scanner *bufio.Scanner) {
 
 func (bench *Workbench) ReadData() {
 	bench.AddScanner(bufio.NewScanner(bench.File))
-	if bench.File.Scan() {
-		scanText := strings.Trim(bench.Scanner.Text(), " ")
-		conv, _ := strconv.ParseFloat(scanText, 64)
-		time.Sleep(time.Duration(conv) * time.Millisecond)
-		fmt.Printf("Workbench %s completed %s in %s seconds\n", bench.Name, bench.Product.Name, scanText)
+	for {
+		if bench.Scanner.Scan() {
+			scanText := strings.Trim(bench.Scanner.Text(), " ")
+			conv, _ := strconv.ParseFloat(scanText, 64)
+			time.Sleep(time.Duration(conv) * time.Millisecond)
+			fmt.Printf("Workbench %s completed %s in %s seconds\n", bench.Name, bench.Product.Name, scanText)
+		} else {
+			return
+		}
 	}
 }

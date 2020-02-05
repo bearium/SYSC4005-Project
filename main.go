@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/SYSC4005-Project/pkg/component"
 	"github.com/SYSC4005-Project/pkg/inspector"
@@ -33,12 +34,16 @@ func init() {
 	w1 := workbench.NewWorkbench("workbench 1", p1, benchFile1)
 	w2 := workbench.NewWorkbench("workbench 2", p2, benchFile2)
 	w3 := workbench.NewWorkbench("workbench 3", p3, benchFile3)
-	i1 := inspector.NewInspector("inspector 1", []*component.Component{component1}, []*workbench.Workbench{w1, w2, w3})
-	i2 := inspector.NewInspector("inspector 2", []*component.Component{component2, component3}, []*workbench.Workbench{w2, w3})
+	mutex := &sync.Mutex{}
+	i1 := inspector.NewInspector("inspector 1", []*component.Component{component1}, []*workbench.Workbench{w1, w2, w3}, mutex)
+	i2 := inspector.NewInspector("inspector 2", []*component.Component{component2, component3}, []*workbench.Workbench{w2, w3}, mutex)
 
 	//starting threads
 	go i1.ReadData()
 	go i2.ReadData()
+	go w1.ReadData()
+	go w2.ReadData()
+	go w3.ReadData()
 }
 func main() {
 	for {

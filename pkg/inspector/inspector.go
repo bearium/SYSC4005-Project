@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/SYSC4005-Project/pkg/component"
@@ -18,13 +19,15 @@ type Inspector struct {
 	Name        string
 	Components  []*component.Component
 	Workbenches []*workbench.Workbench
+	Mux         *sync.Mutex
 }
 
-func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench) *Inspector {
+func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
 	return &Inspector{
 		Name:        name,
 		Components:  components,
 		Workbenches: workbench,
+		Mux:         mux,
 	}
 }
 
@@ -48,8 +51,9 @@ func (i *Inspector) ReadData() {
 			for {
 				placeWorkBench := i.canPlace(currentComponent)
 				if placeWorkBench != nil {
+					i.Mux.Lock()
 					placeWorkBench.AddMaterials(currentComponent)
-					fmt.Println(placeWorkBench.Name)
+					i.Mux.Unlock()
 					break
 				}
 			}
@@ -66,6 +70,7 @@ func (i *Inspector) canPlace(currentComponent *component.Component) *workbench.W
 	var currentBench *workbench.Workbench
 	var currentMaxBenchComponents int
 	for _, bench := range i.Workbenches {
+		i.Mux.Lock()
 		componentAmount := len(bench.ComponentArray[currentComponent.Name])
 		if bench.ComponentArray[currentComponent.Name] != nil && componentAmount < 2 {
 			if componentAmount < currentMaxBenchComponents || currentMaxBenchComponents == 0 {
@@ -73,6 +78,7 @@ func (i *Inspector) canPlace(currentComponent *component.Component) *workbench.W
 				currentMaxBenchComponents = componentAmount
 			}
 		}
+		i.Mux.Unlock()
 	}
 	return currentBench
 }
