@@ -9,19 +9,22 @@ import (
 	"time"
 
 	"github.com/SYSC4005-Project/pkg/component"
+	"github.com/SYSC4005-Project/pkg/workbench"
 )
 
 const seed = 42
 
 type Inspector struct {
-	Name       string
-	Components []*component.Component
+	Name        string
+	Components  []*component.Component
+	Workbenches []*workbench.Workbench
 }
 
-func NewInspector(name string, components []*component.Component) *Inspector {
+func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench) *Inspector {
 	return &Inspector{
-		Name:       name,
-		Components: components,
+		Name:        name,
+		Components:  components,
+		Workbenches: workbench,
 	}
 }
 

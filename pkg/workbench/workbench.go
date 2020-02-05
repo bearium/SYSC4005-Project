@@ -21,11 +21,37 @@ func initComponentArray(product *product.Product) map[string][2]*component.Compo
 	return ComponentArray
 }
 
-func NewWorkbench(name string, inspectors *inspector.Inspector, product *product.Product) *Workbench {
+func NewWorkbench(name string, product *product.Product) *Workbench {
 	return &Workbench{
 		Name:           name,
-		Inspectors:     inspectors,
 		Product:        product,
 		ComponentArray: initComponentArray(product),
 	}
+}
+
+func (bench *Workbench)canMake() bool{
+	for i, requirement := range bench.product.RequiredComponents {
+		if bench.ComponentArray[requirement.Name] == nil {
+			return false
+		}
+	}
+	return true
+}
+
+func (bench *WorkBench)consumeMaterials() {
+	for i, requirement := range bench.product.RequiredComponents {
+		bench.ComponentArray[requirement.Name] = bench.ComponentArray[requirement.Name][:len(bench.ComponentArray[requirement.Name]) -1]
+	}
+}
+
+func (bench *WorkBench)addMaterials() {
+
+}
+func (bench *Workbench) MakeProduct() {
+	for (
+		if bench.canMake() {
+			bench.consumeMaterials()
+			fmt.Printf("Made %s", bench.Product.Name)
+		}
+	)
 }
