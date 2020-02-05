@@ -1,7 +1,9 @@
 package workbench
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/SYSC4005-Project/pkg/component"
 	"github.com/SYSC4005-Project/pkg/product"
@@ -11,6 +13,8 @@ type Workbench struct {
 	Name           string
 	Product        *product.Product
 	ComponentArray map[string][]*component.Component
+	File           *os.File
+	Scanner        *bufio.Scanner
 }
 
 func initComponentArray(product *product.Product) map[string][]*component.Component {
@@ -21,11 +25,12 @@ func initComponentArray(product *product.Product) map[string][]*component.Compon
 	return ComponentArray
 }
 
-func NewWorkbench(name string, product *product.Product) *Workbench {
+func NewWorkbench(name string, product *product.Product, file *os.File) *Workbench {
 	return &Workbench{
 		Name:           name,
 		Product:        product,
 		ComponentArray: initComponentArray(product),
+		File:           file,
 	}
 }
 
@@ -44,9 +49,14 @@ func (bench *Workbench) consumeMaterials() {
 	}
 }
 
-func (bench *Workbench) addMaterials() {
-
+func (bench *Workbench) addMaterials(component *component.Component) {
+	for _, requirement := range bench.Product.RequiredComponents {
+		if requirement.Name == component.Name {
+			bench.ComponentArray[requirement.Name] = append(bench.ComponentArray[requirement.Name], component)
+		}
+	}
 }
+
 func (bench *Workbench) MakeProduct() {
 	for {
 		if bench.canMake() {
@@ -54,4 +64,8 @@ func (bench *Workbench) MakeProduct() {
 			fmt.Printf("Made %s", bench.Product.Name)
 		}
 	}
+}
+
+func (bench *Workbench) addScanner(scanner *bufio.Scanner) {
+	bench.Scanner = scanner
 }
