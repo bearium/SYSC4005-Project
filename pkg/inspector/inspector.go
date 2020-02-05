@@ -47,7 +47,6 @@ func (i *Inspector) ReadData() {
 			if len(i.Components) == 0 {
 				return
 			}
-			continue
 		}
 	}
 }
