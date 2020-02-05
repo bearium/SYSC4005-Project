@@ -1,21 +1,21 @@
 package workbench
 
 import (
+	"fmt"
+
 	"github.com/SYSC4005-Project/pkg/component"
-	"github.com/SYSC4005-Project/pkg/inspector"
 	"github.com/SYSC4005-Project/pkg/product"
 )
 
 type Workbench struct {
 	Name           string
-	Inspectors     []*inspector.Inspector
 	Product        *product.Product
-	ComponentArray map[string][2]*component.Component
+	ComponentArray map[string][]*component.Component
 }
 
-func initComponentArray(product *product.Product) map[string][2]*component.Component {
-	var ComponentArray map[string]interface{}
-	for i, requirement := range product.RequiredComponents {
+func initComponentArray(product *product.Product) map[string][]*component.Component {
+	var ComponentArray = make(map[string][]*component.Component)
+	for _, requirement := range product.RequiredComponents {
 		ComponentArray[requirement.Name] = []*component.Component{}
 	}
 	return ComponentArray
@@ -29,8 +29,8 @@ func NewWorkbench(name string, product *product.Product) *Workbench {
 	}
 }
 
-func (bench *Workbench)canMake() bool{
-	for i, requirement := range bench.product.RequiredComponents {
+func (bench *Workbench) canMake() bool {
+	for _, requirement := range bench.Product.RequiredComponents {
 		if bench.ComponentArray[requirement.Name] == nil {
 			return false
 		}
@@ -38,20 +38,20 @@ func (bench *Workbench)canMake() bool{
 	return true
 }
 
-func (bench *WorkBench)consumeMaterials() {
-	for i, requirement := range bench.product.RequiredComponents {
-		bench.ComponentArray[requirement.Name] = bench.ComponentArray[requirement.Name][:len(bench.ComponentArray[requirement.Name]) -1]
+func (bench *Workbench) consumeMaterials() {
+	for _, requirement := range bench.Product.RequiredComponents {
+		bench.ComponentArray[requirement.Name] = bench.ComponentArray[requirement.Name][:len(bench.ComponentArray[requirement.Name])-1]
 	}
 }
 
-func (bench *WorkBench)addMaterials() {
+func (bench *Workbench) addMaterials() {
 
 }
 func (bench *Workbench) MakeProduct() {
-	for (
+	for {
 		if bench.canMake() {
 			bench.consumeMaterials()
 			fmt.Printf("Made %s", bench.Product.Name)
 		}
-	)
+	}
 }

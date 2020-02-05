@@ -9,8 +9,8 @@ type Product struct {
 
 func NewProduct(name string, requiredComponents []*component.Component) *Product {
 	return &Product{
-		Name:              name,
-		RequiredComponets: requiredComponents,
+		Name:               name,
+		RequiredComponents: requiredComponents,
 	}
 
 }
