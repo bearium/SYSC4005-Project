@@ -49,7 +49,7 @@ func (bench *Workbench) consumeMaterials() {
 	}
 }
 
-func (bench *Workbench) addMaterials(component *component.Component) {
+func (bench *Workbench) AddMaterials(component *component.Component) {
 	for _, requirement := range bench.Product.RequiredComponents {
 		if requirement.Name == component.Name {
 			bench.ComponentArray[requirement.Name] = append(bench.ComponentArray[requirement.Name], component)

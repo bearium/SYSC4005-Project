@@ -45,9 +45,13 @@ func (i *Inspector) ReadData() {
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
 			fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
-			placeWorkBench := i.canPlace(currentComponent)
-			if placeWorkBench != nil {
-				fmt.Println(placeWorkBench.Name)
+			for {
+				placeWorkBench := i.canPlace(currentComponent)
+				if placeWorkBench != nil {
+					placeWorkBench.AddMaterials(currentComponent)
+					fmt.Println(placeWorkBench.Name)
+					break
+				}
 			}
 		} else {
 			i.Components = append(i.Components[:randInt], i.Components[randInt+1:]...)
