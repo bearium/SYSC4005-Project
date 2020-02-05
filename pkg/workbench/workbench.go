@@ -10,21 +10,22 @@ type Workbench struct {
 	Name           string
 	Inspectors     []*inspector.Inspector
 	Product        *product.Product
-	ComponentArray map[string]*component.Component
+	ComponentArray map[string][2]*component.Component
 }
 
-func initComponentArray(product *product.Product) [][]*component.Component {
-	var ComponentArray map[string]*component.Component
+func initComponentArray(product *product.Product) map[string][2]*component.Component {
+	var ComponentArray map[string]interface{}
 	for i, requirement := range product.RequiredComponents {
-		ComponentArray()
+		ComponentArray[requirement.Name] = []*component.Component{}
 	}
+	return ComponentArray
 }
 
 func NewWorkbench(name string, inspectors *inspector.Inspector, product *product.Product) *Workbench {
 	return &Workbench{
-		Name: name,
-		Inspectors: inspectors,
-		Product: product,
-		ComponentArray
+		Name:           name,
+		Inspectors:     inspectors,
+		Product:        product,
+		ComponentArray: initComponentArray(product),
 	}
 }
