@@ -21,6 +21,7 @@ type Inspector struct {
 	Workbenches []*workbench.Workbench
 	Mux         *sync.Mutex
 	IdleTime    time.Duration
+	Blocked     bool
 }
 
 func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
@@ -54,6 +55,7 @@ func (i *Inspector) ReadData() {
 				placeWorkBench := i.canPlace(currentComponent)
 				if placeWorkBench != nil {
 					if !start.IsZero() {
+						i.Blocked = false
 						t := time.Now()
 						elapsed := t.Sub(start)
 						i.IdleTime = i.IdleTime + elapsed
@@ -65,13 +67,13 @@ func (i *Inspector) ReadData() {
 				}
 				if start.IsZero() {
 					start = time.Now()
+					i.Blocked = true
 				}
 			}
 		} else {
 			i.Components = append(i.Components[:randInt], i.Components[randInt+1:]...)
 			if len(i.Components) == 0 {
-				totalIdleTime := i.IdleTime
-				fmt.Printf("total idle time for %s: %v\n", i.Name, totalIdleTime)
+				i.Blocked = true
 				return
 			}
 		}

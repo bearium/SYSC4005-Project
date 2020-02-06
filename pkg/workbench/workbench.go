@@ -21,6 +21,8 @@ type Workbench struct {
 	ComponentArray map[string][]*component.Component
 	File           *os.File
 	Scanner        *bufio.Scanner
+	Blocked        bool
+	TotalProduced  int
 	Mux            *sync.Mutex
 }
 
@@ -78,15 +80,18 @@ func (bench *Workbench) ReadData() {
 	bench.AddScanner(bufio.NewScanner(bench.File))
 	for {
 		if bench.canMake() {
+			bench.Blocked = false
 			if bench.Scanner.Scan() {
 				scanText := strings.Trim(bench.Scanner.Text(), " ")
 				conv, _ := strconv.ParseFloat(scanText, 64)
 				time.Sleep(time.Duration(conv) * time.Millisecond)
 				fmt.Printf("Workbench %s completed %s in %s seconds\n", bench.Name, bench.Product.Name, scanText)
 				bench.consumeMaterials()
+				bench.TotalProduced++
 			} else {
 				return
 			}
 		}
+		bench.Blocked = true
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/SYSC4005-Project/pkg/component"
 	"github.com/SYSC4005-Project/pkg/inspector"
@@ -11,7 +12,7 @@ import (
 	"github.com/SYSC4005-Project/pkg/workbench"
 )
 
-func init() {
+func main() {
 	fmt.Println("beginning simulation")
 
 	//instantiating files to be read
@@ -44,9 +45,19 @@ func init() {
 	go w1.ReadData()
 	go w2.ReadData()
 	go w3.ReadData()
-}
-func main() {
-	for {
+	start := time.Now()
 
+	for {
+		if i1.Blocked && i2.Blocked && w1.Blocked && w2.Blocked && w3.Blocked {
+			t := time.Now()
+			elapsed := t.Local().Sub(start)
+			fmt.Printf("total time: %v\n", elapsed)
+			fmt.Printf("total idle time for %s: %v\n", i1.Name, i1.IdleTime)
+			fmt.Printf("total idle time for %s: %v\n", i2.Name, i2.IdleTime)
+			fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalProduced)
+			fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalProduced)
+			fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalProduced)
+			return
+		}
 	}
 }
