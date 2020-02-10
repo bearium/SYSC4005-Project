@@ -54,9 +54,9 @@ func main() {
 			fmt.Printf("total time: %v\n", elapsed)
 			fmt.Printf("total idle time for %s: %v\n", i1.Name, i1.IdleTime)
 			fmt.Printf("total idle time for %s: %v\n", i2.Name, i2.IdleTime)
-			fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalProduced)
-			fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalProduced)
-			fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalProduced)
+			fmt.Printf("total products produced for %s: %v\n", w1.Name, w1.TotalProduced)
+			fmt.Printf("total products produced for %s: %v\n", w2.Name, w2.TotalProduced)
+			fmt.Printf("total products produced for %s: %v\n", w3.Name, w3.TotalProduced)
 			return
 		}
 	}
