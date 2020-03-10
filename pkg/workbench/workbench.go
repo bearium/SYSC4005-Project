@@ -13,8 +13,6 @@ import (
 	"github.com/SYSC4005-Project/pkg/product"
 )
 
-const seed = 42
-
 type Workbench struct {
 	Name           string
 	Product        *product.Product
