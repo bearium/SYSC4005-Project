@@ -2,7 +2,6 @@ package workbench
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -83,7 +82,7 @@ func (bench *Workbench) ReadData() {
 				scanText := strings.Trim(bench.Scanner.Text(), " ")
 				conv, _ := strconv.ParseFloat(scanText, 64)
 				time.Sleep(time.Duration(conv) * time.Millisecond)
-				fmt.Printf("Workbench %s completed %s in %s seconds\n", bench.Name, bench.Product.Name, scanText)
+				// fmt.Printf("Workbench %s completed %s in %s seconds\n", bench.Name, bench.Product.Name, scanText)
 				bench.consumeMaterials()
 				bench.TotalProduced++
 			} else {

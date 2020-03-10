@@ -2,7 +2,6 @@ package inspector
 
 import (
 	"bufio"
-	"fmt"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -12,8 +11,6 @@ import (
 	"github.com/SYSC4005-Project/pkg/component"
 	"github.com/SYSC4005-Project/pkg/workbench"
 )
-
-const seed = 42
 
 type Inspector struct {
 	Name        string
@@ -34,7 +31,6 @@ func NewInspector(name string, components []*component.Component, workbench []*w
 }
 
 func (i *Inspector) ReadData() {
-	rand.Seed(seed)
 	for j := 0; j < len(i.Components); j++ {
 		i.Components[j].AddScanner(bufio.NewScanner(i.Components[j].File))
 	}
@@ -49,7 +45,7 @@ func (i *Inspector) ReadData() {
 			scanText := strings.Trim(currentComponent.Scanner.Text(), " ")
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
-			fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
+			// fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
 			var start time.Time
 			for {
 				placeWorkBench := i.canPlace(currentComponent)
