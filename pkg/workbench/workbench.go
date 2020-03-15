@@ -21,6 +21,7 @@ type Workbench struct {
 	Blocked        bool
 	TotalProduced  int
 	Mux            *sync.Mutex
+	Close          bool
 }
 
 func initComponentArray(product *product.Product) map[string][]*component.Component {
@@ -76,6 +77,9 @@ func (bench *Workbench) AddScanner(scanner *bufio.Scanner) {
 func (bench *Workbench) ReadData() {
 	bench.AddScanner(bufio.NewScanner(bench.File))
 	for {
+		if bench.Close {
+			return
+		}
 		if bench.canMake() {
 			bench.Blocked = false
 			if bench.Scanner.Scan() {

@@ -19,6 +19,7 @@ type Inspector struct {
 	Mux         *sync.Mutex
 	IdleTime    time.Duration
 	Blocked     bool
+	Close       bool
 }
 
 func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
@@ -36,6 +37,9 @@ func (i *Inspector) ReadData() {
 	}
 
 	for {
+		if i.Close {
+			return
+		}
 		randInt := 0
 		if len(i.Components) > 1 {
 			randInt = rand.Intn(len(i.Components))
