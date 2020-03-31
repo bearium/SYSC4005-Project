@@ -20,6 +20,7 @@ type Inspector struct {
 	IdleTime    time.Duration
 	Blocked     bool
 	Close       bool
+	ClosedTime  time.Time
 }
 
 func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
@@ -35,9 +36,10 @@ func (i *Inspector) ReadData() {
 	for j := 0; j < len(i.Components); j++ {
 		i.Components[j].AddScanner(bufio.NewScanner(i.Components[j].File))
 	}
-
+	rand.Seed(1)
 	for {
 		if i.Close {
+			i.ClosedTime = time.Now()
 			return
 		}
 		randInt := 0
@@ -69,11 +71,16 @@ func (i *Inspector) ReadData() {
 					start = time.Now()
 					i.Blocked = true
 				}
+				if i.Close {
+					i.ClosedTime = time.Now()
+					return
+				}
 			}
 		} else {
 			i.Components = append(i.Components[:randInt], i.Components[randInt+1:]...)
 			if len(i.Components) == 0 {
 				i.Blocked = true
+				i.ClosedTime = time.Now()
 				return
 			}
 		}

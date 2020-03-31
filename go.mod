@@ -3,7 +3,7 @@ module github.com/SYSC4005-Project
 go 1.13
 
 require (
-	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
 	github.com/kazukousen/gouml v0.0.0-20200130160104-3f26238a1dbe // indirect

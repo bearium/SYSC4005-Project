@@ -22,6 +22,9 @@ type Workbench struct {
 	TotalProduced  int
 	Mux            *sync.Mutex
 	Close          bool
+	StartTime      time.Time
+	ClosedTime     time.Time
+	TotalIdle      time.Duration
 }
 
 func initComponentArray(product *product.Product) map[string][]*component.Component {
@@ -76,11 +79,21 @@ func (bench *Workbench) AddScanner(scanner *bufio.Scanner) {
 
 func (bench *Workbench) ReadData() {
 	bench.AddScanner(bufio.NewScanner(bench.File))
+	var startIdle time.Time
 	for {
 		if bench.Close {
+			bench.ClosedTime = time.Now()
 			return
 		}
 		if bench.canMake() {
+			if !startIdle.IsZero() {
+				stopIdle := time.Now()
+				bench.TotalIdle = bench.TotalIdle + stopIdle.Sub(startIdle)
+				startIdle = time.Time{}
+			}
+			if bench.StartTime.IsZero() {
+				bench.StartTime = time.Now()
+			}
 			bench.Blocked = false
 			if bench.Scanner.Scan() {
 				scanText := strings.Trim(bench.Scanner.Text(), " ")
@@ -90,8 +103,12 @@ func (bench *Workbench) ReadData() {
 				bench.consumeMaterials()
 				bench.TotalProduced++
 			} else {
+				bench.ClosedTime = time.Now()
 				return
 			}
+		}
+		if startIdle.IsZero() {
+			startIdle = time.Now()
 		}
 		bench.Blocked = true
 	}
