@@ -23,13 +23,13 @@ func runBenchMark(i int) {
 
 	//instantiating files to be read
 	//component files
-	componentFile1, _ := os.Open("data/servinsp1.dat")
-	componentFile2, _ := os.Open("data/servinsp22.dat")
-	componentFile3, _ := os.Open("data/servinsp23.dat")
+	componentFile1, _ := os.Open("data/servinsp1Generate.dat")
+	componentFile2, _ := os.Open("data/servinsp22Generate.dat")
+	componentFile3, _ := os.Open("data/servinsp23Generate.dat")
 	//workbench files
-	benchFile1, _ := os.Open("data/ws1.dat")
-	benchFile2, _ := os.Open("data/ws2.dat")
-	benchFile3, _ := os.Open("data/ws3.dat")
+	benchFile1, _ := os.Open("data/ws1Generate.dat")
+	benchFile2, _ := os.Open("data/ws2Generate.dat")
+	benchFile3, _ := os.Open("data/ws3Generate.dat")
 
 	//initializing objects
 	component1 := component.NewComponent("Component 1", 1, componentFile1)

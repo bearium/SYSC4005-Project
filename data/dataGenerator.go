@@ -4,14 +4,17 @@ import (
 	"bufio"
 	"fmt"
 	"math"
+	"math/rand"
 	"os"
+	"time"
 )
 
-var lambda = 0.0135
-var bestFit = 1.5608
+var lambda = 0.0125
+var bestFit = 0.8026
+var dataArray []float64
 
 func main() {
-	f, err := os.Create("servinsp23Generate.dat")
+	f, err := os.Create("ws3Generate.dat")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -24,8 +27,12 @@ func main() {
 		//  xi := 0.6084 * math.Exp((lambda * ri))
 		xi := bestFit * math.Exp(lambda*ri)
 		// xi := (1 / lambda) * (math.Ln2 * ri)
-
-		_, err := datawriter.WriteString(fmt.Sprintf("%f\n", xi))
+		dataArray = append(dataArray, xi)
+	}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(dataArray), func(i, j int) { dataArray[i], dataArray[j] = dataArray[j], dataArray[i] })
+	for i := 0; i < len(dataArray); i++ {
+		_, err := datawriter.WriteString(fmt.Sprintf("%f\n", dataArray[i]))
 		if err != nil {
 			fmt.Println(err)
 			f.Close()
