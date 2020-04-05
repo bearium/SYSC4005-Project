@@ -33,11 +33,13 @@ func runBenchMark(i int) {
 
 	//initializing objects
 	component1 := component.NewComponent("Component 1", 1, componentFile1)
+	wb2Component1 := component.NewComponent("Component 1", 1, componentFile1)
+	wb3Component1 := component.NewComponent("Component 1", 1, componentFile1)
 	component2 := component.NewComponent("Component 2", 2, componentFile2)
 	component3 := component.NewComponent("Component 3", 3, componentFile3)
 	p1 := product.NewProduct("product 1", []*component.Component{component1})
-	p2 := product.NewProduct("product 2", []*component.Component{component1, component2})
-	p3 := product.NewProduct("product 3", []*component.Component{component1, component3})
+	p2 := product.NewProduct("product 2", []*component.Component{wb2Component1, component2})
+	p3 := product.NewProduct("product 3", []*component.Component{wb3Component1, component3})
 	mutex := &sync.Mutex{}
 	w1 := workbench.NewWorkbench("workbench 1", p1, benchFile1, mutex)
 	w2 := workbench.NewWorkbench("workbench 2", p2, benchFile2, mutex)
@@ -71,12 +73,27 @@ func runBenchMark(i int) {
 			fmt.Printf("total products produced for %s: %v\n", w1.Name, w1.TotalProduced)
 			fmt.Printf("Running Time for %s: %v\n", w1.Name, w1.ClosedTime.Sub(w1.StartTime))
 			fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalIdle)
+			for _, component := range w1.Product.RequiredComponents {
+				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
+					fmt.Printf("total queue time for %s: %v:%v\n", component.Name, i, component.QueueData.ItemsInQueue[i])
+				}
+			}
 			fmt.Printf("total products produced for %s: %v\n", w2.Name, w2.TotalProduced)
 			fmt.Printf("Running Time for %s: %v\n", w2.Name, w2.ClosedTime.Sub(w2.StartTime))
 			fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalIdle)
+			for _, component := range w2.Product.RequiredComponents {
+				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
+					fmt.Printf("total queue time for %s: %v:%v\n", component.Name, i, component.QueueData.ItemsInQueue[i])
+				}
+			}
 			fmt.Printf("total products produced for %s: %v\n", w3.Name, w3.TotalProduced)
 			fmt.Printf("Running Time for %s: %v\n", w3.Name, w3.ClosedTime.Sub(w3.StartTime))
 			fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalIdle)
+			for _, component := range w3.Product.RequiredComponents {
+				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
+					fmt.Printf("total queue time for %s: %v:%v\n", component.Name, i, component.QueueData.ItemsInQueue[i])
+				}
+			}
 			time.Sleep(1000)
 			componentFile1.Close()
 			componentFile2.Close()

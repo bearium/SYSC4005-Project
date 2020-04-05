@@ -51,7 +51,6 @@ func (i *Inspector) ReadData() {
 			scanText := strings.Trim(currentComponent.Scanner.Text(), " ")
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
-			// fmt.Printf("Inspector %s completed component %s in %s seconds\n", i.Name, i.Components[randInt].Name, scanText)
 			var start time.Time
 			for {
 				placeWorkBench := i.canPlace(currentComponent)

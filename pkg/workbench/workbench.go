@@ -13,18 +13,19 @@ import (
 )
 
 type Workbench struct {
-	Name           string
-	Product        *product.Product
-	ComponentArray map[string][]*component.Component
-	File           *os.File
-	Scanner        *bufio.Scanner
-	Blocked        bool
-	TotalProduced  int
-	Mux            *sync.Mutex
-	Close          bool
-	StartTime      time.Time
-	ClosedTime     time.Time
-	TotalIdle      time.Duration
+	Name               string
+	Product            *product.Product
+	ComponentArray     map[string][]*component.Component
+	File               *os.File
+	Scanner            *bufio.Scanner
+	Blocked            bool
+	TotalProduced      int
+	Mux                *sync.Mutex
+	Close              bool
+	StartTime          time.Time
+	ClosedTime         time.Time
+	TotalIdle          time.Duration
+	timeSinceComponent map[int]time.Duration
 }
 
 func initComponentArray(product *product.Product) map[string][]*component.Component {
@@ -61,6 +62,10 @@ func (bench *Workbench) consumeMaterials() {
 	for _, requirement := range bench.Product.RequiredComponents {
 		bench.Mux.Lock()
 		bench.ComponentArray[requirement.Name] = bench.ComponentArray[requirement.Name][:len(bench.ComponentArray[requirement.Name])-1]
+		elapsed := time.Now()
+		requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
+		requirement.QueueData.TimeSinceLastUpdate = elapsed
+		requirement.QueueData.CurrentQueueSize--
 		bench.Mux.Unlock()
 	}
 }
@@ -69,6 +74,15 @@ func (bench *Workbench) AddMaterials(component *component.Component) {
 	for _, requirement := range bench.Product.RequiredComponents {
 		if requirement.Name == component.Name {
 			bench.ComponentArray[requirement.Name] = append(bench.ComponentArray[requirement.Name], component)
+			if requirement.QueueData.TimeSinceLastUpdate.IsZero() {
+				requirement.QueueData.TimeSinceLastUpdate = time.Now()
+				requirement.QueueData.CurrentQueueSize = 1
+			} else {
+				elapsed := time.Now()
+				requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
+				requirement.QueueData.TimeSinceLastUpdate = elapsed
+				requirement.QueueData.CurrentQueueSize++
+			}
 		}
 	}
 }
@@ -99,7 +113,6 @@ func (bench *Workbench) ReadData() {
 				scanText := strings.Trim(bench.Scanner.Text(), " ")
 				conv, _ := strconv.ParseFloat(scanText, 64)
 				time.Sleep(time.Duration(conv) * time.Millisecond)
-				// fmt.Printf("Workbench %s completed %s in %s seconds\n", bench.Name, bench.Product.Name, scanText)
 				bench.consumeMaterials()
 				bench.TotalProduced++
 			} else {
