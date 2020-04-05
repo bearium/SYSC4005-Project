@@ -75,7 +75,8 @@ func runBenchMark(i int) {
 			fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalIdle)
 			for _, component := range w1.Product.RequiredComponents {
 				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
-					fmt.Printf("total queue time for %s: %v:%v\n", component.Name, i, component.QueueData.ItemsInQueue[i])
+					average := float64(component.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w1.StartTime).Microseconds())
+					fmt.Printf("total queue time for %s: %v:%v, average:%f\n", component.Name, i, component.QueueData.ItemsInQueue[i], average*100)
 				}
 			}
 			fmt.Printf("total products produced for %s: %v\n", w2.Name, w2.TotalProduced)
@@ -83,7 +84,8 @@ func runBenchMark(i int) {
 			fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalIdle)
 			for _, component := range w2.Product.RequiredComponents {
 				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
-					fmt.Printf("total queue time for %s: %v:%v\n", component.Name, i, component.QueueData.ItemsInQueue[i])
+					average := float64(component.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Microseconds())
+					fmt.Printf("total queue time for %s: %v:%v, average:%f\n", component.Name, i, component.QueueData.ItemsInQueue[i], average*100)
 				}
 			}
 			fmt.Printf("total products produced for %s: %v\n", w3.Name, w3.TotalProduced)
@@ -91,7 +93,8 @@ func runBenchMark(i int) {
 			fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalIdle)
 			for _, component := range w3.Product.RequiredComponents {
 				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
-					fmt.Printf("total queue time for %s: %v:%v\n", component.Name, i, component.QueueData.ItemsInQueue[i])
+					average := float64(component.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Microseconds())
+					fmt.Printf("total queue time for %s: %v:%v, average:%f\n", component.Name, i, component.QueueData.ItemsInQueue[i], average*100)
 				}
 			}
 			time.Sleep(1000)
