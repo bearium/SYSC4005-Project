@@ -97,6 +97,11 @@ func (bench *Workbench) ReadData() {
 	for {
 		if bench.Close {
 			bench.ClosedTime = time.Now()
+			for _, requirement := range bench.Product.RequiredComponents {
+				elapsed := time.Now()
+				requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
+				requirement.QueueData.TimeSinceLastUpdate = elapsed
+			}
 			return
 		}
 		if bench.canMake() {
@@ -117,6 +122,11 @@ func (bench *Workbench) ReadData() {
 				bench.TotalProduced++
 			} else {
 				bench.ClosedTime = time.Now()
+				for _, requirement := range bench.Product.RequiredComponents {
+					elapsed := time.Now()
+					requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
+					requirement.QueueData.TimeSinceLastUpdate = elapsed
+				}
 				return
 			}
 		}
