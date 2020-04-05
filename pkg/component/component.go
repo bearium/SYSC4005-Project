@@ -12,6 +12,8 @@ type Component struct {
 	Name      string
 	Id        int
 	QueueData *Componentqueue
+	TimeIn    time.Time
+	TimeOut   time.Time
 }
 
 type Componentqueue struct {

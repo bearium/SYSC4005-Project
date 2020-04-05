@@ -72,31 +72,63 @@ func runBenchMark(i int) {
 			fmt.Printf("Running Time for %s: %v\n", i2.Name, i2.ClosedTime.Sub(start))
 			fmt.Printf("total products produced for %s: %v\n", w1.Name, w1.TotalProduced)
 			fmt.Printf("Running Time for %s: %v\n", w1.Name, w1.ClosedTime.Sub(w1.StartTime))
+			throughput := float64(w1.TotalProduced) / float64(w1.ClosedTime.Sub(w1.StartTime).Seconds())
+			fmt.Printf("Throughput: %v/s\n", throughput)
+			arivalRate := float64(w1.TotalComponents) / float64(w1.TotalArrivalTIme.Seconds())
+			fmt.Printf("Arival Rate: %v/s\n", arivalRate)
+			fmt.Println(w1.TotalComponents)
+			fmt.Println(w1.TimeInSystem)
+			w := float64(w1.TimeInSystem.Seconds()) / float64(w1.TotalComponents)
+			fmt.Printf("w=%v\n", w)
+			fmt.Printf("lambda*w= %v\n", arivalRate*w)
 			fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalIdle)
-			for _, component := range w1.Product.RequiredComponents {
-				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
-					average := float64(component.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w1.StartTime).Microseconds())
-					fmt.Printf("total queue time for %s: %v:%v, average:%f\n", component.Name, i, component.QueueData.ItemsInQueue[i], average*100)
-				}
+
+			var TotalAverage float64
+			for i := 0; i < len(w1.QueueData.ItemsInQueue); i++ {
+				average := float64(w1.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w1.StartTime).Microseconds())
+				TotalAverage = TotalAverage + (float64(i) * average)
+				fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w1.Name, i, w1.QueueData.ItemsInQueue[i], average*100)
 			}
+			fmt.Printf("total queue average: %v\n", TotalAverage)
+
 			fmt.Printf("total products produced for %s: %v\n", w2.Name, w2.TotalProduced)
 			fmt.Printf("Running Time for %s: %v\n", w2.Name, w2.ClosedTime.Sub(w2.StartTime))
+			throughput = float64(w2.TotalProduced) / float64(w2.ClosedTime.Sub(w2.StartTime).Seconds())
+			fmt.Printf("Throughput: %v/s\n", throughput)
+			arivalRate = float64(w2.TotalComponents) / float64(w2.TotalArrivalTIme.Seconds())
+			fmt.Printf("Arival Rate: %v/s\n", arivalRate)
+			// test := w2.ClosedTime.Sub(w2.StartTime) - w2.QueueData.ItemsInQueue[0]
+			// fmt.Println(test)
+			w = float64(w2.TimeInSystem.Seconds()) / float64(w2.TotalComponents)
+			fmt.Printf("w=%v\n", w)
+			fmt.Printf("lambda*w= %v\n", arivalRate*w)
 			fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalIdle)
-			for _, component := range w2.Product.RequiredComponents {
-				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
-					average := float64(component.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Microseconds())
-					fmt.Printf("total queue time for %s: %v:%v, average:%f\n", component.Name, i, component.QueueData.ItemsInQueue[i], average*100)
-				}
+
+			TotalAverage = 0
+			for i := 0; i < len(w2.QueueData.ItemsInQueue); i++ {
+				average := float64(w2.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Microseconds())
+				TotalAverage = TotalAverage + (float64(i) * average)
+				fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w2.Name, i, w2.QueueData.ItemsInQueue[i], average*100)
 			}
+			fmt.Printf("total queue average: %v\n", TotalAverage)
+
 			fmt.Printf("total products produced for %s: %v\n", w3.Name, w3.TotalProduced)
 			fmt.Printf("Running Time for %s: %v\n", w3.Name, w3.ClosedTime.Sub(w3.StartTime))
+			throughput = float64(w3.TotalProduced) / float64(w3.ClosedTime.Sub(w3.StartTime).Seconds())
+			fmt.Printf("Throughput: %v/s\n", throughput)
+			arivalRate = float64(w3.TotalComponents) / float64(w3.TotalArrivalTIme.Seconds())
+			fmt.Printf("Arival Rate: %v/s\n", arivalRate)
+			w = float64(w3.TimeInSystem.Seconds()) / float64(w3.TotalComponents)
+			fmt.Printf("w=%v\n", w)
+			fmt.Printf("lambda*w= %v\n", arivalRate*w)
 			fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalIdle)
-			for _, component := range w3.Product.RequiredComponents {
-				for i := 0; i < len(component.QueueData.ItemsInQueue); i++ {
-					average := float64(component.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Microseconds())
-					fmt.Printf("total queue time for %s: %v:%v, average:%f\n", component.Name, i, component.QueueData.ItemsInQueue[i], average*100)
-				}
+			TotalAverage = 0
+			for i := 0; i < len(w3.QueueData.ItemsInQueue); i++ {
+				average := float64(w3.QueueData.ItemsInQueue[i].Microseconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Microseconds())
+				TotalAverage = TotalAverage + (float64(i) * average)
+				fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w3.Name, i, w3.QueueData.ItemsInQueue[i], average*100)
 			}
+			fmt.Printf("total queue average: %v\n", TotalAverage)
 			time.Sleep(1000)
 			componentFile1.Close()
 			componentFile2.Close()

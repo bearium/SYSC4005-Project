@@ -13,19 +13,30 @@ import (
 )
 
 type Workbench struct {
-	Name               string
-	Product            *product.Product
-	ComponentArray     map[string][]*component.Component
-	File               *os.File
-	Scanner            *bufio.Scanner
-	Blocked            bool
-	TotalProduced      int
-	Mux                *sync.Mutex
-	Close              bool
-	StartTime          time.Time
-	ClosedTime         time.Time
-	TotalIdle          time.Duration
-	timeSinceComponent map[int]time.Duration
+	Name                   string
+	Product                *product.Product
+	ComponentArray         map[string][]*component.Component
+	File                   *os.File
+	Scanner                *bufio.Scanner
+	Blocked                bool
+	TotalProduced          int
+	Mux                    *sync.Mutex
+	Close                  bool
+	StartTime              time.Time
+	ClosedTime             time.Time
+	TotalIdle              time.Duration
+	timeSinceComponent     map[int]time.Duration
+	QueueData              *Componentqueue
+	TotalComponents        int
+	TotalArrivalTIme       time.Duration
+	TimeSinceLastComponent time.Time
+	TimeInSystem           time.Duration
+}
+
+type Componentqueue struct {
+	CurrentQueueSize    int
+	ItemsInQueue        map[int]time.Duration
+	TimeSinceLastUpdate time.Time
 }
 
 func initComponentArray(product *product.Product) map[string][]*component.Component {
@@ -43,6 +54,9 @@ func NewWorkbench(name string, product *product.Product, file *os.File, mux *syn
 		ComponentArray: initComponentArray(product),
 		File:           file,
 		Mux:            mux,
+		QueueData: &Componentqueue{
+			ItemsInQueue: make(map[int]time.Duration),
+		},
 	}
 }
 
@@ -61,11 +75,18 @@ func (bench *Workbench) canMake() bool {
 func (bench *Workbench) consumeMaterials() {
 	for _, requirement := range bench.Product.RequiredComponents {
 		bench.Mux.Lock()
+		component := bench.ComponentArray[requirement.Name][len(bench.ComponentArray[requirement.Name])-1]
+		component.TimeOut = time.Now()
+
+		bench.TimeInSystem = bench.TimeInSystem + component.TimeOut.Sub(component.TimeIn)
 		bench.ComponentArray[requirement.Name] = bench.ComponentArray[requirement.Name][:len(bench.ComponentArray[requirement.Name])-1]
 		elapsed := time.Now()
 		requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
 		requirement.QueueData.TimeSinceLastUpdate = elapsed
 		requirement.QueueData.CurrentQueueSize--
+		bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] = bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] + elapsed.Sub(bench.QueueData.TimeSinceLastUpdate)
+		bench.QueueData.TimeSinceLastUpdate = elapsed
+		bench.QueueData.CurrentQueueSize--
 		bench.Mux.Unlock()
 	}
 }
@@ -73,15 +94,25 @@ func (bench *Workbench) consumeMaterials() {
 func (bench *Workbench) AddMaterials(component *component.Component) {
 	for _, requirement := range bench.Product.RequiredComponents {
 		if requirement.Name == component.Name {
-			bench.ComponentArray[requirement.Name] = append(bench.ComponentArray[requirement.Name], component)
-			if requirement.QueueData.TimeSinceLastUpdate.IsZero() {
-				requirement.QueueData.TimeSinceLastUpdate = time.Now()
-				requirement.QueueData.CurrentQueueSize = 1
+			if bench.TimeSinceLastComponent.IsZero() {
+				bench.TimeSinceLastComponent = time.Now()
+				bench.TotalComponents++
 			} else {
 				elapsed := time.Now()
-				requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
-				requirement.QueueData.TimeSinceLastUpdate = elapsed
-				requirement.QueueData.CurrentQueueSize++
+				bench.TotalArrivalTIme = bench.TotalArrivalTIme + elapsed.Sub(bench.TimeSinceLastComponent)
+				bench.TimeSinceLastComponent = elapsed
+				bench.TotalComponents++
+			}
+			component.TimeIn = time.Now()
+			bench.ComponentArray[requirement.Name] = append(bench.ComponentArray[requirement.Name], component)
+			if bench.QueueData.TimeSinceLastUpdate.IsZero() {
+				bench.QueueData.TimeSinceLastUpdate = time.Now()
+				bench.QueueData.CurrentQueueSize = 1
+			} else {
+				elapsed := time.Now()
+				bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] = bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] + elapsed.Sub(bench.QueueData.TimeSinceLastUpdate)
+				bench.QueueData.TimeSinceLastUpdate = elapsed
+				bench.QueueData.CurrentQueueSize++
 			}
 		}
 	}
@@ -97,11 +128,11 @@ func (bench *Workbench) ReadData() {
 	for {
 		if bench.Close {
 			bench.ClosedTime = time.Now()
-			for _, requirement := range bench.Product.RequiredComponents {
-				elapsed := time.Now()
-				requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
-				requirement.QueueData.TimeSinceLastUpdate = elapsed
-			}
+
+			elapsed := time.Now()
+			bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] = bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] + elapsed.Sub(bench.QueueData.TimeSinceLastUpdate)
+			bench.QueueData.TimeSinceLastUpdate = elapsed
+
 			return
 		}
 		if bench.canMake() {
@@ -122,11 +153,10 @@ func (bench *Workbench) ReadData() {
 				bench.TotalProduced++
 			} else {
 				bench.ClosedTime = time.Now()
-				for _, requirement := range bench.Product.RequiredComponents {
-					elapsed := time.Now()
-					requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] = requirement.QueueData.ItemsInQueue[requirement.QueueData.CurrentQueueSize] + elapsed.Sub(requirement.QueueData.TimeSinceLastUpdate)
-					requirement.QueueData.TimeSinceLastUpdate = elapsed
-				}
+				elapsed := time.Now()
+				bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] = bench.QueueData.ItemsInQueue[bench.QueueData.CurrentQueueSize] + elapsed.Sub(bench.QueueData.TimeSinceLastUpdate)
+				bench.QueueData.TimeSinceLastUpdate = elapsed
+
 				return
 			}
 		}
