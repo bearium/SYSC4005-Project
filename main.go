@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/SYSC4005-Project/data"
 	"github.com/SYSC4005-Project/pkg/component"
 	"github.com/SYSC4005-Project/pkg/inspector"
 	"github.com/SYSC4005-Project/pkg/product"
@@ -14,7 +15,13 @@ import (
 
 func main() {
 	fmt.Println("beginning simulation")
-	for i := 1; i < 2; i++ {
+	for i := 0; i < 15; i++ {
+		data.Generate("data/servinsp1Generate.dat", 0.0125, 0.9729, 300)
+		data.Generate("data/servinsp22Generate.dat", 0.0125, 1.4594, 300)
+		data.Generate("data/servinsp23Generate.dat", 0.0135, 1.5608, 300)
+		data.Generate("data/ws1Generate.dat", 0.0127, 0.4044, 300)
+		data.Generate("data/ws2Generate.dat", 0.0149, 0.6084, 300)
+		data.Generate("data/ws3Generate.dat", 0.0125, 0.8026, 300)
 		runBenchMark(i)
 	}
 }
@@ -53,7 +60,7 @@ func runBenchMark(i int) {
 	go w1.ReadData()
 	go w2.ReadData()
 	go w3.ReadData()
-	start := time.Now()
+	//	start := time.Now()
 
 	for {
 		if i1.Blocked && i2.Blocked && w1.Blocked && w2.Blocked && w3.Blocked {
@@ -62,74 +69,81 @@ func runBenchMark(i int) {
 			w1.Close = true
 			w2.Close = true
 			w3.Close = true
-			t := time.Now()
-			elapsed := t.Local().Sub(start)
+			// t := time.Now()
+			// elapsed := t.Local().Sub(start)
 			time.Sleep(1000)
-			fmt.Printf("total time: %v\n", elapsed)
-			fmt.Printf("total idle time for %s: %v\n", i1.Name, i1.IdleTime)
-			fmt.Printf("Running Time for %s: %v\n", i1.Name, i1.ClosedTime.Sub(start))
-			fmt.Printf("total idle time for %s: %v\n", i2.Name, i2.IdleTime)
-			fmt.Printf("Running Time for %s: %v\n", i2.Name, i2.ClosedTime.Sub(start))
-			fmt.Printf("total products produced for %s: %v\n", w1.Name, w1.TotalProduced)
-			fmt.Printf("Running Time for %s: %v\n", w1.Name, w1.ClosedTime.Sub(w1.StartTime))
-			throughput := float64(w1.TotalProduced) / float64(w1.ClosedTime.Sub(w1.StartTime).Seconds())
-			fmt.Printf("Throughput: %v/s\n", throughput)
-			arivalRate := float64(w1.TotalComponents) / float64(w1.TotalArrivalTIme.Seconds())
-			fmt.Printf("Arival Rate: %v/s\n", arivalRate)
-			totalTime := float64(w1.ClosedTime.Sub(w1.StartTime).Seconds()) - float64(w1.QueueData.ItemsInQueue[0].Seconds())
-			w := float64(totalTime) / float64(w2.TotalComponents)
-			fmt.Printf("w=%v\n", w)
-			fmt.Printf("lambda*w= %v\n", arivalRate*w)
-			fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalIdle)
+			// fmt.Printf("total time: %v\n", elapsed)
+			// fmt.Printf("total idle time for %s: %v\n", i1.Name, i1.IdleTime)
+			// fmt.Printf("Running Time for %s: %v\n", i1.Name, i1.ClosedTime.Sub(start))
+			// throughput := float64(i1.TotalComponentS) / float64(i1.ClosedTime.Sub(start).Seconds())
+			// fmt.Printf("THROUGHPUT INSPECTOR 1: %f/min\n", (throughput / 1000))
+			// throughput = float64(i2.TotalComponentS) / float64(i2.ClosedTime.Sub(start).Seconds())
+			// fmt.Printf("THROUGHPUT INSPECTOR 2: %f/min\n", (throughput / 1000))
+			fmt.Printf("%.5f\n", float64(w3.TotalProduced)/float64(w3.ClosedTime.Sub(w3.StartTime).Seconds()))
+			// fmt.Printf("inspector 2 idle: %v%%\n", (float64(i2.IdleTime) / float64(i2.ClosedTime.Sub(start))))
+			// fmt.Printf("total idle time for %s: %v\n", i2.Name, i2.IdleTime)
+			// fmt.Printf("Running Time for %s: %v\n", i2.Name, i2.ClosedTime.Sub(start))
+			// fmt.Printf("total products produced for %s: %v\n", w1.Name, w1.TotalProduced)
+			// fmt.Printf("Running Time for %s: %v\n", w1.Name, w1.ClosedTime.Sub(w1.StartTime))
+			// throughput := float64(w1.TotalProduced) / float64(w1.ClosedTime.Sub(w1.StartTime).Seconds())
+			// fmt.Printf("Throughput: %v/s\n", throughput)
+			// arivalRate := float64(w1.TotalComponents) / float64(w1.TotalArrivalTIme.Seconds())
+			// fmt.Println("WORKBENCH 1:")
+			// fmt.Printf("Arival Rate: %v/s\n", arivalRate)
+			// totalTime := float64(w1.ClosedTime.Sub(w1.StartTime).Seconds()) - float64(w1.QueueData.ItemsInQueue[0].Seconds())
+			// w := float64(totalTime) / float64(w1.TotalProduced)
+			// fmt.Printf("w=%v\n", w)
+			// fmt.Printf("lambda*w= %v\n", arivalRate*w)
+			// // fmt.Printf("total idle time for %s: %v\n", w1.Name, w1.TotalIdle)
 
-			var TotalAverage float64
-			for i := 0; i < len(w1.QueueData.ItemsInQueue); i++ {
-				average := float64(w1.QueueData.ItemsInQueue[i].Microseconds()) / float64(w1.ClosedTime.Sub(w1.StartTime).Microseconds())
-				TotalAverage = TotalAverage + (float64(i) * average)
-				fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w1.Name, i, w1.QueueData.ItemsInQueue[i], average*100)
-			}
-			fmt.Printf("total queue average: %v\n", TotalAverage)
+			// var TotalAverage float64
+			// for i := 0; i < len(w1.QueueData.ItemsInQueue); i++ {
+			// 	average := float64(w1.QueueData.ItemsInQueue[i].Microseconds()) / float64(w1.ClosedTime.Sub(w1.StartTime).Microseconds())
+			// 	TotalAverage = TotalAverage + (float64(i) * average)
+			// 	// fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w1.Name, i, w1.QueueData.ItemsInQueue[i], average*100)
+			// }
+			// fmt.Printf("L= %v\n", TotalAverage)
 
-			fmt.Printf("total products produced for %s: %v\n", w2.Name, w2.TotalProduced)
-			fmt.Printf("Running Time for %s: %v\n", w2.Name, w2.ClosedTime.Sub(w2.StartTime))
-			throughput = float64(w2.TotalProduced) / float64(w2.ClosedTime.Sub(w2.StartTime).Seconds())
-			fmt.Printf("Throughput: %v/s\n", throughput)
-			arivalRate = float64(w2.TotalComponents) / float64(w2.TotalArrivalTIme.Seconds())
-			fmt.Printf("Arival Rate: %v/s\n", arivalRate)
-			fmt.Println(float64(w2.ClosedTime.Sub(w2.StartTime).Seconds()))
-			fmt.Println(float64(w2.QueueData.ItemsInQueue[0].Seconds()))
-			totalTime = float64(w2.ClosedTime.Sub(w2.StartTime).Seconds()) - float64(w2.QueueData.ItemsInQueue[0].Seconds())
-			w = float64(totalTime) / float64(w2.TotalComponents)
-			fmt.Printf("w=%v\n", w)
-			fmt.Printf("lambda*w= %v\n", arivalRate*w)
-			fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalIdle)
+			// // fmt.Printf("total products produced for %s: %v\n", w2.Name, w2.TotalProduced)
+			// // fmt.Printf("Running Time for %s: %v\n", w2.Name, w2.ClosedTime.Sub(w2.StartTime))
+			// // throughput = float64(w2.TotalProduced) / float64(w2.ClosedTime.Sub(w2.StartTime).Seconds())
+			// // fmt.Printf("Throughput: %v/s\n", throughput)
+			// fmt.Println("WORKBENCH 2:")
+			// arivalRate = float64(w2.TotalComponents) / float64(w2.TotalArrivalTIme.Seconds())
+			// fmt.Printf("Arival Rate: %v/s\n", arivalRate)
+			// totalTime = float64(w2.ClosedTime.Sub(w2.StartTime).Seconds()) - float64(w2.QueueData.ItemsInQueue[0].Seconds())
+			// w = float64(totalTime) / float64(w2.TotalProduced)
+			// fmt.Printf("w=%v\n", w)
+			// fmt.Printf("lambda*w= %v\n", arivalRate*w)
+			// // fmt.Printf("total idle time for %s: %v\n", w2.Name, w2.TotalIdle)
 
-			TotalAverage = 0
-			for i := 0; i < len(w2.QueueData.ItemsInQueue); i++ {
-				average := float64(w2.QueueData.ItemsInQueue[i].Seconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Seconds())
-				TotalAverage = TotalAverage + (float64(i) * average)
-				fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w2.Name, i, w2.QueueData.ItemsInQueue[i], average*100)
-			}
-			fmt.Printf("total queue average: %v\n", TotalAverage)
+			// TotalAverage = 0
+			// for i := 0; i < len(w2.QueueData.ItemsInQueue); i++ {
+			// 	average := float64(w2.QueueData.ItemsInQueue[i].Seconds()) / float64(w2.ClosedTime.Sub(w2.StartTime).Seconds())
+			// 	TotalAverage = TotalAverage + (float64(i) * average)
+			// 	// fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w2.Name, i, w2.QueueData.ItemsInQueue[i], average*100)
+			// }
+			// fmt.Printf("L= %v\n", TotalAverage)
 
-			fmt.Printf("total products produced for %s: %v\n", w3.Name, w3.TotalProduced)
-			fmt.Printf("Running Time for %s: %v\n", w3.Name, w3.ClosedTime.Sub(w3.StartTime))
-			throughput = float64(w3.TotalProduced) / float64(w3.ClosedTime.Sub(w3.StartTime).Seconds())
-			fmt.Printf("Throughput: %v/s\n", throughput)
-			arivalRate = float64(w3.TotalComponents) / float64(w3.TotalArrivalTIme.Seconds())
-			fmt.Printf("Arival Rate: %v/s\n", arivalRate)
-			totalTime = float64(w3.ClosedTime.Sub(w3.StartTime).Seconds()) - float64(w3.QueueData.ItemsInQueue[0].Seconds())
-			w = float64(totalTime) / float64(w3.TotalComponents)
-			fmt.Printf("w=%v\n", w)
-			fmt.Printf("lambda*w= %v\n", arivalRate*w)
-			fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalIdle)
-			TotalAverage = 0
-			for i := 0; i < len(w3.QueueData.ItemsInQueue); i++ {
-				average := float64(w3.QueueData.ItemsInQueue[i].Microseconds()) / float64(w3.ClosedTime.Sub(w3.StartTime).Microseconds())
-				TotalAverage = TotalAverage + (float64(i) * average)
-				fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w3.Name, i, w3.QueueData.ItemsInQueue[i], average*100)
-			}
-			fmt.Printf("total queue average: %v\n", TotalAverage)
+			// // fmt.Printf("total products produced for %s: %v\n", w3.Name, w3.TotalProduced)
+			// // fmt.Printf("Running Time for %s: %v\n", w3.Name, w3.ClosedTime.Sub(w3.StartTime))
+			// // throughput = float64(w3.TotalProduced) / float64(w3.ClosedTime.Sub(w3.StartTime).Seconds())
+			// // fmt.Printf("Throughput: %v/s\n", throughput)
+			// fmt.Println("WORKBENCH 3:")
+			// arivalRate = float64(w3.TotalComponents) / float64(w3.TotalArrivalTIme.Seconds())
+			// fmt.Printf("Arival Rate: %v/s\n", arivalRate)
+			// totalTime = float64(w3.ClosedTime.Sub(w3.StartTime).Seconds()) - float64(w3.QueueData.ItemsInQueue[0].Seconds())
+			// w = float64(totalTime) / float64(w3.TotalProduced)
+			// fmt.Printf("w=%v\n", w)
+			// fmt.Printf("lambda*w= %v\n", arivalRate*w)
+			// // fmt.Printf("total idle time for %s: %v\n", w3.Name, w3.TotalIdle)
+			// TotalAverage = 0
+			// for i := 0; i < len(w3.QueueData.ItemsInQueue); i++ {
+			// 	average := float64(w3.QueueData.ItemsInQueue[i].Microseconds()) / float64(w3.ClosedTime.Sub(w3.StartTime).Microseconds())
+			// 	TotalAverage = TotalAverage + (float64(i) * average)
+			// 	// fmt.Printf("total queue time for %s: %v:%v, average:%f\n", w3.Name, i, w3.QueueData.ItemsInQueue[i], average*100)
+			// }
+			// fmt.Printf("L= %v\n", TotalAverage)
 			time.Sleep(1000)
 			componentFile1.Close()
 			componentFile2.Close()

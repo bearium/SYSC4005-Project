@@ -13,14 +13,15 @@ import (
 )
 
 type Inspector struct {
-	Name        string
-	Components  []*component.Component
-	Workbenches []*workbench.Workbench
-	Mux         *sync.Mutex
-	IdleTime    time.Duration
-	Blocked     bool
-	Close       bool
-	ClosedTime  time.Time
+	Name            string
+	Components      []*component.Component
+	Workbenches     []*workbench.Workbench
+	Mux             *sync.Mutex
+	IdleTime        time.Duration
+	Blocked         bool
+	Close           bool
+	ClosedTime      time.Time
+	TotalComponentS int
 }
 
 func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
@@ -51,6 +52,7 @@ func (i *Inspector) ReadData() {
 			scanText := strings.Trim(currentComponent.Scanner.Text(), " ")
 			conv, _ := strconv.ParseFloat(scanText, 64)
 			time.Sleep(time.Duration(conv) * time.Millisecond)
+			i.TotalComponentS++
 			var start time.Time
 			for {
 				placeWorkBench := i.canPlace(currentComponent)

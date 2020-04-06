@@ -1,4 +1,4 @@
-package main
+package data
 
 import (
 	"bufio"
@@ -9,19 +9,17 @@ import (
 	"time"
 )
 
-var lambda = 0.0125
-var bestFit = 0.8026
-var dataArray []float64
 
-func main() {
-	f, err := os.Create("ws3Generate.dat")
+func Generate(file string, lambda float64, bestFit float64, x int) {
+	var dataArray []float64
+	f, err := os.Create(file)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	datawriter := bufio.NewWriter(f)
 
-	for i := 0; i < 300; i++ {
+	for i := 0; i < x; i++ {
 		var ri float64
 		ri = float64(i) + 1
 		//  xi := 0.6084 * math.Exp((lambda * ri))
