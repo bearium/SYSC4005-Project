@@ -8,20 +8,22 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SYSC4005-Project/pkg/component"
-	"github.com/SYSC4005-Project/pkg/workbench"
+	"github.com/SYSC4005-Project/Version1/pkg/component"
+	"github.com/SYSC4005-Project/Version1/pkg/workbench"
 )
 
 type Inspector struct {
-	Name            string
-	Components      []*component.Component
-	Workbenches     []*workbench.Workbench
-	Mux             *sync.Mutex
-	IdleTime        time.Duration
-	Blocked         bool
-	Close           bool
-	ClosedTime      time.Time
-	TotalComponentS int
+	Name                   string
+	Components             []*component.Component
+	Workbenches            []*workbench.Workbench
+	Mux                    *sync.Mutex
+	IdleTime               time.Duration
+	Blocked                bool
+	Close                  bool
+	ClosedTime             time.Time
+	TotalComponentS        int
+	TotalArrivalTIme       time.Duration
+	TimeSinceLastComponent time.Time
 }
 
 func NewInspector(name string, components []*component.Component, workbench []*workbench.Workbench, mux *sync.Mutex) *Inspector {
@@ -51,6 +53,7 @@ func (i *Inspector) ReadData() {
 		if currentComponent.Scanner.Scan() {
 			scanText := strings.Trim(currentComponent.Scanner.Text(), " ")
 			conv, _ := strconv.ParseFloat(scanText, 64)
+			i.TimeSinceLastComponent = time.Now()
 			time.Sleep(time.Duration(conv) * time.Millisecond)
 			i.TotalComponentS++
 			var start time.Time
@@ -64,6 +67,9 @@ func (i *Inspector) ReadData() {
 						i.IdleTime = i.IdleTime + elapsed
 					}
 					i.Mux.Lock()
+					elapsed := time.Now()
+					i.TotalArrivalTIme = i.TotalArrivalTIme + elapsed.Sub(i.TimeSinceLastComponent)
+					i.TimeSinceLastComponent = elapsed
 					placeWorkBench.AddMaterials(currentComponent)
 					i.Mux.Unlock()
 					break
@@ -95,7 +101,7 @@ func (i *Inspector) canPlace(currentComponent *component.Component) *workbench.W
 		i.Mux.Lock()
 		componentAmount := len(bench.ComponentArray[currentComponent.Name])
 		if bench.ComponentArray[currentComponent.Name] != nil && componentAmount < 2 {
-			if componentAmount < currentMaxBenchComponents || currentMaxBenchComponents == 0 {
+			if componentAmount <= currentMaxBenchComponents || currentMaxBenchComponents == 0 {
 				currentBench = bench
 				currentMaxBenchComponents = componentAmount
 			}

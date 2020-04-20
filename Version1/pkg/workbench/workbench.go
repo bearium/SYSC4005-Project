@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/SYSC4005-Project/pkg/component"
-	"github.com/SYSC4005-Project/pkg/product"
+	"github.com/SYSC4005-Project/Version1/pkg/component"
+	"github.com/SYSC4005-Project/Version1/pkg/product"
 )
 
 type Workbench struct {

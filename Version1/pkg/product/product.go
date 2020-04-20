@@ -1,6 +1,6 @@
 package product
 
-import "github.com/SYSC4005-Project/pkg/component"
+import "github.com/SYSC4005-Project/Version1/pkg/component"
 
 type Product struct {
 	Name               string

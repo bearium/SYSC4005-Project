@@ -94,13 +94,13 @@ func (i *Workbench2) UpdateAverageTimes() {
 
 func (i *Workbench2) TotalAverage(totalTime float64) float64 {
 	var returnAverage float64
-	average1 := i.TotalTime1 / totalTime
+	average1 := i.TotalTime1 / i.TotalTimer
 	returnAverage = returnAverage + (1 * average1)
-	average2 := i.TotalTime2 / totalTime
+	average2 := i.TotalTime2 / i.TotalTimer
 	returnAverage = returnAverage + (2 * average2)
-	average3 := i.TotalTime3 / totalTime
+	average3 := i.TotalTime3 / i.TotalTimer
 	returnAverage = returnAverage + (3 * average3)
-	average4 := i.TotalTime4 / totalTime
+	average4 := i.TotalTime4 / i.TotalTimer
 	returnAverage = returnAverage + (4 * average4)
 	return returnAverage
 }

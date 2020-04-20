@@ -145,7 +145,7 @@ func main() {
 			fmt.Println("Inspector 1:")
 			arivalRate := float64(i1.TotalProduced) / float64(i1.TotalArrivalTime)
 			fmt.Printf("Lambda= %v/s\n", arivalRate)
-			w := float64(i1.TotalTime) / float64(i1.TotalProduced)
+			w := float64(i1.TotalTime-i1.BlockedTime) / float64(i1.TotalProduced)
 			fmt.Printf("w=%v\n", w)
 			fmt.Printf("lambda*w= %v\n", arivalRate*w)
 			TotalAverage := float64(1)

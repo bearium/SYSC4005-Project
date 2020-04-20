@@ -28,7 +28,7 @@ type Inspector2 struct {
 func NewInspector2(file *os.File, file2 *os.File) *Inspector2 {
 	return &Inspector2{
 		Scanner:  bufio.NewScanner(file),
-		Scanner2: bufio.NewScanner(file),
+		Scanner2: bufio.NewScanner(file2),
 	}
 }
 
