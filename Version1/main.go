@@ -117,13 +117,13 @@ func runBenchMark(i int) {
 			fmt.Printf("L= %v\n", TotalAverage)
 			systemTotalL = systemTotalL + TotalAverage
 
-			fmt.Println(w1.TotalComponents)
-			fmt.Println(w1.TotalArrivalTIme.Seconds())
 			arivalRate = float64(w1.TotalComponents) / float64(w1.TotalArrivalTIme.Seconds())
 			fmt.Println("WORKBENCH 1:")
+
 			fmt.Printf("Lambda= %v/s\n", arivalRate)
 			systemTotalLambda = systemTotalLambda + arivalRate
-			totalTime = float64(w1.ClosedTime.Sub(w1.StartTime).Seconds()) - float64(w1.QueueData.ItemsInQueue[0].Seconds())
+			totalTime = float64(w2.ClosedTime.Sub(w1.StartTime).Seconds()) - float64(w1.QueueData.ItemsInQueue[0].Seconds())
+			fmt.Println(totalTime)
 			w = float64(totalTime) / float64(w1.TotalProduced)
 			systemTotalW = systemTotalW + w
 			fmt.Printf("w=%v\n", w)

@@ -101,7 +101,7 @@ func (i *Inspector) canPlace(currentComponent *component.Component) *workbench.W
 		i.Mux.Lock()
 		componentAmount := len(bench.ComponentArray[currentComponent.Name])
 		if bench.ComponentArray[currentComponent.Name] != nil && componentAmount < 2 {
-			if componentAmount < currentMaxBenchComponents || currentMaxBenchComponents == 0 {
+			if componentAmount <= currentMaxBenchComponents || currentMaxBenchComponents == 0 {
 				currentBench = bench
 				currentMaxBenchComponents = componentAmount
 			}

@@ -1,0 +1,67 @@
+@startuml
+
+package "product" {
+	class "Product" as product.Product <<V,Orchid>> {
+		+Name: string
+		+RequiredComponents: []*component
+	}
+}
+
+
+
+package "component" {
+	class "Component" as component.Component <<E,#FFCC00>> {
+		+Scanner: *bufio.Scanner
+		+File: *os.File
+		+Name: string
+		+Id: int
+		+AddScanner(scanner: *bufio.Scanner)
+	}
+}
+
+
+
+package "inspector" {
+	class "Inspector" as inspector.Inspector <<E,#FFCC00>> {
+		+Name: string
+		+Components: []*component.Component
+		+Workbenches: []*workbench.Workbench
+		+Mux: *sync.Mux
+		+IdleTime: int
+		+Blocked: bool
+		+ReadData()
+		-canPlace(currentComponent: *component.Component: *workbench
+	}
+}
+
+
+
+package "workbench" {
+	class "Workbench" as workbench.Workbench <<E,#FFCC00>> {
+		+Name: string
+		+Product: product.Product
+		+ComponentArray: []component.Component
+		+File: *os.File
+		+Scanner: *bufio.Scanner
+		+Blocked: bool
+		+TotalProduced: int
+		+Mux: *sync.Mutex
+		-canMake(): bool
+		-consumeMaterials()
+		+AddMaterials(component: component.Component)
+		+AddScanner(scanner: *bufio.Scanner)
+		+ReadData()
+	}
+}
+
+	workbench.Workbench --> product.Product
+
+	workbench.Workbench ..> component.Component : <<use>> 
+
+	inspector.Inspector --> workbench.Workbench
+
+	inspector.Inspector --> component.Component
+
+
+
+@enduml
