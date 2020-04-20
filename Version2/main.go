@@ -52,20 +52,22 @@ func runBenchMark(i int) {
 	w2 := workbench.NewWorkbench("workbench 2", p2, benchFile2, mutex)
 	w3 := workbench.NewWorkbench("workbench 3", p3, benchFile3, mutex)
 	i1 := inspector.NewInspector("inspector 1", []*component.Component{component1}, []*workbench.Workbench{w1, w2, w3}, mutex)
-	i2 := inspector.NewInspector("inspector 2", []*component.Component{component2, component3}, []*workbench.Workbench{w2, w3}, mutex)
-
+	i2 := inspector.NewInspector("inspector 2", []*component.Component{component2}, []*workbench.Workbench{w2}, mutex)
+	i3 := inspector.NewInspector("inspector 3", []*component.Component{component3}, []*workbench.Workbench{w3}, mutex)
 	//starting threads
 	go i1.ReadData()
 	go i2.ReadData()
+	go i3.ReadData()
 	go w1.ReadData()
 	go w2.ReadData()
 	go w3.ReadData()
 	start := time.Now()
 
 	for {
-		if i1.Blocked && i2.Blocked && w1.Blocked && w2.Blocked && w3.Blocked {
+		if i1.Blocked && i2.Blocked && i3.Blocked && w1.Blocked && w2.Blocked && w3.Blocked {
 			i1.Close = true
 			i2.Close = true
+			i3.Close = true
 			w1.Close = true
 			w2.Close = true
 			w3.Close = true
@@ -110,6 +112,19 @@ func runBenchMark(i int) {
 			systemTotalLambda = systemTotalLambda + arivalRate
 			totalTime = float64(i2.ClosedTime.Sub(start).Seconds())
 			w = float64(totalTime) / float64(i2.TotalComponentS)
+			systemTotalW = systemTotalW + w
+			fmt.Printf("w=%v\n", w)
+			fmt.Printf("lambda*w= %v\n", arivalRate*w)
+			TotalAverage = float64(1)
+			fmt.Printf("L= %v\n", TotalAverage)
+			systemTotalL = systemTotalL + TotalAverage
+
+			fmt.Println("Inspector 3:")
+			arivalRate = float64(i3.TotalComponentS) / float64(i3.TotalArrivalTIme.Seconds())
+			fmt.Printf("Lambda= %v/s\n", arivalRate)
+			systemTotalLambda = systemTotalLambda + arivalRate
+			totalTime = float64(i3.ClosedTime.Sub(start).Seconds())
+			w = float64(totalTime) / float64(i3.TotalComponentS)
 			systemTotalW = systemTotalW + w
 			fmt.Printf("w=%v\n", w)
 			fmt.Printf("lambda*w= %v\n", arivalRate*w)
